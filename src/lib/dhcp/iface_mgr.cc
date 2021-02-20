@@ -312,8 +312,17 @@ void IfaceMgr::stopDHCPReceiver() {
     }
 }
 
+void IfaceMgr::stopEventMonitor() {
+    if (event_monitor_.isRunning()) {
+        event_monitor_.stop();
+    }
+}
+
 IfaceMgr::~IfaceMgr() {
     closeSockets();
+
+    // Stop the link state event monitor.
+    stopEventMonitor();
 }
 
 bool
