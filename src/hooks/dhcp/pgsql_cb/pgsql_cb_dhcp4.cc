@@ -34,11 +34,6 @@
 #include <boost/pointer_cast.hpp>
 #include <boost/scoped_ptr.hpp>
 
-#include <array>
-#include <sstream>
-#include <utility>
-#include <vector>
-
 using namespace isc::cb;
 using namespace isc::db;
 using namespace isc::data;
@@ -1016,7 +1011,8 @@ public:
     /// @param server_selector Server selector.
     /// @param pool Pointer to the pool to be inserted.
     /// @param subnet Pointer to the subnet that this pool belongs to.
-    void createPool4(const ServerSelector& server_selector, const Pool4Ptr& pool,
+    void createPool4(const ServerSelector& server_selector,
+                     const Pool4Ptr& pool,
                      const Subnet4Ptr& subnet) {
         // Create the input bindings.
         PsqlBindArray in_bindings;
@@ -1494,7 +1490,7 @@ public:
         in_bindings.addOptional(shared_network->getCacheThreshold(Network::Inheritance::NONE));
         in_bindings.addOptional(shared_network->getCacheMaxAge(Network::Inheritance::NONE));
 
-        // Start transaction (if not already in one).
+        // Start transaction.
         PgSqlTransaction transaction(conn_);
 
         // Create scoped audit revision. As long as this instance exists
@@ -1667,7 +1663,7 @@ public:
                       " (unassigned) is unsupported at the moment");
         }
 
-        // Populate input bindings.
+        // Create input bindings.
         PsqlBindArray in_bindings;
         in_bindings.add(option->option_->getType());
         addOptionValueBinding(in_bindings, option);
@@ -1690,7 +1686,7 @@ public:
         in_bindings.add(option->option_->getType());
         in_bindings.addOptional(option->space_name_);
 
-        // Start a transaction.
+        // Start transaction.
         PgSqlTransaction transaction(conn_);
 
         // Create scoped audit revision. As long as this instance exists
@@ -1772,14 +1768,14 @@ public:
         in_bindings.addTimestamp(option->getModificationTime());
 
         // Remember the size before we add where clause arguments.
-        int pre_where_size = in_bindings.size();
+        size_t pre_where_size = in_bindings.size();
 
         // Now we add the update where clause parameters
         in_bindings.add(pool_id);
         in_bindings.add(option->option_->getType());
         in_bindings.addOptional(option->space_name_);
 
-        // Start a transaction (unless we already in one).
+        // Start transaction.
         PgSqlTransaction transaction(conn_);
 
         // Create scoped audit revision. As long as this instance exists
@@ -1790,15 +1786,16 @@ public:
                            server_selector, "pool specific option set",
                            cascade_update);
 
-        // Try to update. If it doesn't exist we'll attempt an insert.
+        // Try to update the option.
         if (updateDeleteQuery(PgSqlConfigBackendDHCPv4Impl::UPDATE_OPTION4_POOL_ID,
                               in_bindings) == 0) {
-            // Remove the update where clause paramters.
+            // The option doesn't exist, so we'll try to insert it.
+            // Remove the update where clause bindings.
             while (in_bindings.size() > pre_where_size) {
                 in_bindings.popBack();
             }
 
-            // Try the insert.
+            // Try to insert the option.
             insertOption4(server_selector, in_bindings,
                           option->getModificationTime());
         }
@@ -1840,14 +1837,14 @@ public:
         in_bindings.addTimestamp(option->getModificationTime());
 
         // Remember the size before we add where clause arguments.
-        int pre_where_size = in_bindings.size();
+        size_t pre_where_size = in_bindings.size();
 
         // Now we add the update where clause parameters
         in_bindings.add(shared_network_name);
         in_bindings.add(option->option_->getType());
         in_bindings.addOptional(option->space_name_);
 
-        // Start a transaction (unless we already in one).
+        // Start transaction.
         PgSqlTransaction transaction(conn_);
 
         // Create scoped audit revision. As long as this instance exists
@@ -1858,15 +1855,16 @@ public:
                            server_selector, "shared network specific option set",
                            cascade_update);
 
-        // Try to update. If it doesn't exist we'll attempt an insert.
+        // Try to update the option.
         if (updateDeleteQuery(PgSqlConfigBackendDHCPv4Impl::UPDATE_OPTION4_SHARED_NETWORK,
                               in_bindings) == 0) {
-            // Remove the update where clause paramters.
+            // The option doesn't exist, so we'll try to insert it.
+            // Remove the update where clause bindings.
             while (in_bindings.size() > pre_where_size) {
                 in_bindings.popBack();
             }
 
-            // Try the insert.
+            // Try to insert the option.
             insertOption4(server_selector, in_bindings, option->getModificationTime());
         }
 
@@ -2922,7 +2920,7 @@ TaggedStatementArray tagged_statements = { {
         {
             OID_VARCHAR,    // 1 server_tag
             OID_TEXT,       // 2 start_address - cast as inet
-            OID_TEXT        // 3 end_address  - cast as inet
+            OID_TEXT        // 3 end_address - cast as inet
         },
         "GET_POOL4_RANGE",
         PGSQL_GET_POOL4_RANGE_WITH_TAG(WHERE (srv.tag = $1 OR srv.id = 1) \
@@ -2936,7 +2934,7 @@ TaggedStatementArray tagged_statements = { {
         2,
         {
             OID_TEXT,       // 1 start_address - cast as inet
-            OID_TEXT        // 2 end_address  - cast as inet
+            OID_TEXT        // 2 end_address - cast as inet
         },
         "GET_POOL4_RANGE_ANY",
         PGSQL_GET_POOL4_RANGE_NO_TAG(WHERE (p.start_address = cast($1 as inet)) AND \
@@ -3362,7 +3360,7 @@ TaggedStatementArray tagged_statements = { {
             OID_INT8,       // 3 subnet_id
             OID_VARCHAR,    // 4 client_class
             OID_TEXT,       // 5 require_client_classes
-            OID_TEXT,       // 6 user_context
+            OID_TEXT,       // 6 user_context - cast as json
             OID_TIMESTAMP   // 7 modification_ts
         },
         "INSERT_POOL4",

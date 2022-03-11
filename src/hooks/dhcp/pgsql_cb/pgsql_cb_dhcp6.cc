@@ -29,12 +29,12 @@
 #include <util/buffer.h>
 #include <util/boost_time_utils.h>
 #include <util/multi_threading_mgr.h>
+#include <util/triplet.h>
 #include <pgsql/pgsql_connection.h>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/pointer_cast.hpp>
 #include <boost/scoped_ptr.hpp>
-
 
 using namespace isc::cb;
 using namespace isc::db;
@@ -665,8 +665,7 @@ public:
     /// @return Pointer to the returned subnet or NULL if such subnet
     /// doesn't exist.
     Subnet6Ptr getSubnet6(const ServerSelector& server_selector,
-                          const SubnetID& subnet_id)  {
-
+                          const SubnetID& subnet_id) {
         if (server_selector.hasMultipleTags()) {
             isc_throw(InvalidOperation, "expected one server tag to be specified"
                       " while fetching a subnet. Got: "
@@ -734,10 +733,9 @@ public:
                       "server is not supported");
         }
 
-        PsqlBindArray in_bindings;
-
         auto index = (server_selector.amUnassigned() ? GET_ALL_SUBNETS6_UNASSIGNED :
                       GET_ALL_SUBNETS6);
+        PsqlBindArray in_bindings;
         getSubnets6(index, server_selector, in_bindings, subnets);
     }
 
@@ -812,8 +810,6 @@ public:
                 // pool end_address (2)
                 last_pool_id = id;
 
-                // pool start_address (1)
-                // pool end_address (2)
                 last_pool = Pool6::create(Lease::TYPE_NA, worker.getInet6(1), worker.getInet6(2));
 
                 // pool subnet_id (3) (ignored)
@@ -982,6 +978,7 @@ public:
         }
 
         pool_id = 0;
+
         return (Pool6Ptr());
     }
 
@@ -1030,7 +1027,6 @@ public:
     /// @param subnet Pointer to the subnet to be inserted or updated.
     void createUpdateSubnet6(const ServerSelector& server_selector,
                              const Subnet6Ptr& subnet) {
-
         if (server_selector.amAny()) {
             isc_throw(InvalidOperation, "creating or updating a subnet for ANY"
                       " server is not supported");
@@ -1058,10 +1054,11 @@ public:
         in_bindings.addOptional(subnet->getReservationsGlobal(Network::Inheritance::NONE));
 
         // Add shared network.
-        // If the subnet is associated with a shared network instance.
-        // If it is, create the binding using the name of the shared network.
         SharedNetwork6Ptr shared_network;
         subnet->getSharedNetwork(shared_network);
+
+        // Check if the subnet is associated with a shared network instance.
+        // If it is, create the binding using the name of the shared network.
         if (shared_network) {
             in_bindings.addTempString(shared_network->getName());
 
@@ -1113,7 +1110,9 @@ public:
         conn_.createSavepoint("createUpdateSubnet6");
 
         try {
+
             insertQuery(PgSqlConfigBackendDHCPv6Impl::INSERT_SUBNET6, in_bindings);
+
         } catch (const DuplicateEntry&) {
             // It already exists, rollback to the savepoint to preserve
             // any prior work.
@@ -1190,7 +1189,6 @@ public:
     void createPool6(const ServerSelector& server_selector,
                      const Pool6Ptr& pool,
                      const Subnet6Ptr& subnet) {
-
         // Create the input bindings.
         PsqlBindArray in_bindings;
         in_bindings.addInet6(pool->getFirstAddress());
@@ -1344,7 +1342,6 @@ public:
         return (deleteTransactional(index, server_selector,
                                     "deleting a subnet", "subnet deleted",
                                     true, subnet_prefix));
-
     }
 
     /// @brief Deletes pools belonging to a subnet from the database.
@@ -1421,14 +1418,14 @@ public:
             if (last_network_id != network_id) {
                 last_network_id = network_id;
 
-                // Reset per shared network subnet component tracking and server tag because
+                // Reset per shared network component tracking and server tag because
                 // we're now starting to process a new shared network.
                 last_option_id = 0;
                 last_tag.clear();
 
                 // name at 1.
                 last_network = SharedNetwork6::create(worker.getString(1));
-                last_network->setId(network_id);
+                last_network->setId(last_network_id);
 
                 // client_class at 2.
                 if (!worker.isColumnNull(2)) {
@@ -1694,8 +1691,8 @@ public:
                       " server is not supported");
 
         } else if (server_selector.amUnassigned()) {
-            isc_throw(NotImplemented, "creating or updating a shared network without"
-                      " assigning it to a server or all servers is not supported");
+            isc_throw(NotImplemented, "managing configuration for no particular server"
+                      " (unassigned) is unsupported at the moment");
         }
 
         PsqlBindArray in_bindings;
@@ -1731,7 +1728,7 @@ public:
         in_bindings.addOptional(shared_network->getCacheThreshold(Network::Inheritance::NONE));
         in_bindings.addOptional(shared_network->getCacheMaxAge(Network::Inheritance::NONE));
 
-        // Start transaction (if not already in one).
+        // Start transaction.
         PgSqlTransaction transaction(conn_);
 
         // Create scoped audit revision. As long as this instance exists
@@ -1900,13 +1897,12 @@ public:
                              const SubnetID& subnet_id,
                              const OptionDescriptorPtr& option,
                              const bool cascade_update) {
-
         if (server_selector.amUnassigned()) {
             isc_throw(NotImplemented, "managing configuration for no particular server"
                       " (unassigned) is unsupported at the moment");
         }
 
-        // Populate input bindings.
+        // Create input bindings.
         PsqlBindArray in_bindings;
         in_bindings.add(option->option_->getType());
         addOptionValueBinding(in_bindings, option);
@@ -1922,15 +1918,15 @@ public:
         in_bindings.addTimestamp(option->getModificationTime());
         in_bindings.addNull();
 
-        // Remember the size before we added where clause arguments.
+        // Remember the size before we add where clause arguments.
         size_t pre_where_size = in_bindings.size();
 
-        // Now the add the update where clause parameters
+        // Now we add the update where clause parameters
         in_bindings.add(subnet_id);
         in_bindings.add(option->option_->getType());
         in_bindings.addOptional(option->space_name_);
 
-        // Start a transaction.
+        // Start transaction.
         PgSqlTransaction transaction(conn_);
 
         // Create scoped audit revision. As long as this instance exists
@@ -2071,10 +2067,10 @@ public:
             in_bindings.addNull();
         }
 
-        // Remember the size before we added where clause arguments.
+        // Remember the size before we add where clause arguments.
         size_t pre_where_size = in_bindings.size();
 
-        // Now the add the update where clause parameters
+        // Now we add the update where clause parameters
         in_bindings.add(pool_id);
         in_bindings.add(option->option_->getType());
         in_bindings.addOptional(option->space_name_);
@@ -2133,7 +2129,7 @@ public:
                       " (unassigned) is unsupported at the moment");
         }
 
-        // Populate input bindings.
+        // Create input bindings.
         PsqlBindArray in_bindings;
         in_bindings.add(option->option_->getType());
         addOptionValueBinding(in_bindings, option);
@@ -2149,15 +2145,15 @@ public:
         in_bindings.addTimestamp(option->getModificationTime());
         in_bindings.addNull();
 
-        // Remember the size before we added where clause arguments.
+        // Remember the size before we add where clause arguments.
         size_t pre_where_size = in_bindings.size();
 
-        // Now the add the update where clause parameters
+        // Now we add the update where clause parameters
         in_bindings.add(shared_network_name);
         in_bindings.add(option->option_->getType());
         in_bindings.addOptional(option->space_name_);
 
-        // Start a transaction.
+        // Start transaction.
         PgSqlTransaction transaction(conn_);
 
         // Create scoped audit revision. As long as this instance exists
@@ -2168,7 +2164,7 @@ public:
                            server_selector, "shared network specific option set",
                            cascade_update);
 
-        // Try to update the subnet option.
+        // Try to update the option.
         if (updateDeleteQuery(PgSqlConfigBackendDHCPv6Impl::UPDATE_OPTION6_SHARED_NETWORK,
                               in_bindings) == 0) {
             // The option doesn't exist, so we'll try to insert it.
@@ -2183,7 +2179,6 @@ public:
 
         // Commit the work.
         transaction.commit();
-
     }
 
     /// @brief Sends query to insert or update DHCP option in a client class.
@@ -2327,7 +2322,7 @@ public:
         // Run DELETE.
         return (deleteTransactional(PgSqlConfigBackendDHCPv6Impl::DELETE_OPTION6_POOL_RANGE,
                                     server_selector,
-                                    "deleting option for a pool",
+                                    "deleting option for an address pool",
                                     "address pool specific option deleted",
                                     false,
                                     in_bindings));
@@ -2400,7 +2395,8 @@ public:
         in_bindings.addTempString(subnet->toText());
 
         // Run DELETE.
-        return (deleteTransactional(DELETE_OPTIONS6_SUBNET_ID_PREFIX, server_selector,
+        return (deleteTransactional(PgSqlConfigBackendDHCPv6Impl::DELETE_OPTIONS6_SUBNET_ID_PREFIX,
+                                    server_selector,
                                     "deleting options for a subnet",
                                     "subnet specific options deleted",
                                     true, in_bindings));
@@ -2933,7 +2929,7 @@ TaggedStatementArray tagged_statements = { {
         {
             OID_VARCHAR,    // 1 server_tag
             OID_TEXT,       // 2 start_address - cast as inet
-            OID_TEXT        // 3 end_address  - cast as inet
+            OID_TEXT        // 3 end_address - cast as inet
         },
         "GET_POOL6_RANGE",
         PGSQL_GET_POOL6_RANGE_WITH_TAG(WHERE (srv.tag = $1 OR srv.id = 1) \
@@ -2947,7 +2943,7 @@ TaggedStatementArray tagged_statements = { {
         2,
         {
             OID_TEXT,       // 1 start_address - cast as inet
-            OID_TEXT        // 2 end_address  - cast as inet
+            OID_TEXT        // 2 end_address - cast as inet
         },
         "GET_POOL6_RANGE_ANY",
         PGSQL_GET_POOL6_RANGE_NO_TAG(WHERE (p.start_address = cast($1 as inet)) AND \
@@ -2964,8 +2960,7 @@ TaggedStatementArray tagged_statements = { {
             OID_INT2        // 3 prefix length
         },
         "GET_PD_POOL",
-        PGSQL_GET_PD_POOL_WITH_TAG(WHERE (srv.tag = $1 OR srv.id = 1) \
-                                   AND p.prefix = $2 AND p.prefix_length = $3)
+        PGSQL_GET_PD_POOL_WITH_TAG(WHERE (srv.tag = $1 OR srv.id = 1) AND p.prefix = $2 AND p.prefix_length = $3)
     },
 
     // Select prefix delegation pool for any server.
@@ -3950,8 +3945,7 @@ TaggedStatementArray tagged_statements = { {
             OID_VARCHAR     // 16 space (of option to update)
         },
         "UPDATE_OPTION6_SUBNET_ID",
-        PGSQL_UPDATE_OPTION6_NO_TAG(o.scope_id = 1 AND o.dhcp6_subnet_id = $14 \
-                                    AND o.code = $15 AND o.space = $16)
+        PGSQL_UPDATE_OPTION6_NO_TAG(o.scope_id = 1 AND o.dhcp6_subnet_id = $14 AND o.code = $15 AND o.space = $16)
     },
 
     // Update existing pool level option.
@@ -3977,8 +3971,7 @@ TaggedStatementArray tagged_statements = { {
             OID_VARCHAR     // 16 space (of option to update)
         },
         "UPDATE_OPTION6_POOL_ID",
-        PGSQL_UPDATE_OPTION6_NO_TAG(o.scope_id = 5 AND o.pool_id = $14 \
-                                    AND o.code = $15 AND o.space = $16)
+        PGSQL_UPDATE_OPTION6_NO_TAG(o.scope_id = 5 AND o.pool_id = $14 AND o.code = $15 AND o.space = $16)
     },
 
     // Update existing pd pool level option.
@@ -4004,8 +3997,7 @@ TaggedStatementArray tagged_statements = { {
             OID_VARCHAR     // 16 space (of option to update)
         },
         "UPDATE_OPTION6_PD_POOL_ID",
-        PGSQL_UPDATE_OPTION6_NO_TAG(o.scope_id = 6 AND o.pd_pool_id = $14 \
-                                    AND o.code = $15 AND o.space = $16)
+        PGSQL_UPDATE_OPTION6_NO_TAG(o.scope_id = 6 AND o.pd_pool_id = $14 AND o.code = $15 AND o.space = $16)
     },
 
     // Update existing shared network level option.
@@ -4031,8 +4023,7 @@ TaggedStatementArray tagged_statements = { {
             OID_VARCHAR     // 16 space (of option to update)
         },
         "UPDATE_OPTION6_SHARED_NETWORK",
-        PGSQL_UPDATE_OPTION6_NO_TAG(o.scope_id = 4 AND o.shared_network_name = $14 \
-                                    AND o.code = $15 AND o.space = $16)
+        PGSQL_UPDATE_OPTION6_NO_TAG(o.scope_id = 4 AND o.shared_network_name = $14 AND o.code = $15 AND o.space = $16)
     },
 
     // Update existing client class level option.
@@ -4058,8 +4049,7 @@ TaggedStatementArray tagged_statements = { {
             OID_VARCHAR     // 16 space (of option to update)
         },
         "UPDATE_OPTION6_CIENT_CLASS",
-        PGSQL_UPDATE_OPTION6_NO_TAG(o.scope_id = 2 AND o.dhcp_client_class = $14 \
-                                    AND o.code = $15 AND o.space = $16)
+        PGSQL_UPDATE_OPTION6_NO_TAG(o.scope_id = 2 AND o.dhcp_client_class = $14 AND o.code = $15 AND o.space = $16)
     },
 
     // Update existing client class with specifying its position.
