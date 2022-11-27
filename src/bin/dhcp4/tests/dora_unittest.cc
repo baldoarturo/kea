@@ -685,22 +685,22 @@ public:
     /// in use the client will get a different address.
     void selectingRequestAddress();
 
-    /// @brief  This test verifies that the client will get the address that it
+    /// @brief This test verifies that the client will get the address that it
     /// has been allocated when the client requests a different address.
     void selectingRequestNonMatchingAddress();
 
-    /// @brief  Test that the client in the INIT-REBOOT state can request the IP
+    /// @brief Test that the client in the INIT-REBOOT state can request the IP
     /// address it has and the address is returned. Also, check that if the
     /// client requests invalid address the server sends a DHCPNAK.
     void initRebootRequest();
 
-    /// @brief  Test that the client in the INIT-REBOOT state can request the IP
+    /// @brief Test that the client in the INIT-REBOOT state can request the IP
     /// address it has and the address is returned. Also, check that if the
     /// client is unknown the server sends a DHCPNAK.
     void authoritative();
 
-    /// @brief  Test that the client in the INIT-REBOOT state can request the IP
-    /// address it has and the address is returned. Also, check that if  the
+    /// @brief Test that the client in the INIT-REBOOT state can request the IP
+    /// address it has and the address is returned. Also, check that if the
     /// client is unknown the request is dropped.
     void notAuthoritative();
 
@@ -735,7 +735,7 @@ public:
     /// pool.
     void reservation();
 
-    /// @brief  This test checks that it is possible to make a reservation by
+    /// @brief This test checks that it is possible to make a reservation by
     /// DUID carried in the Client Identifier option.
     void reservationByDUID();
 
@@ -747,7 +747,7 @@ public:
     ///  client-id.
     void reservationByClientId();
 
-    /// @brief  This test verifies that order in which host identifiers are used
+    /// @brief This test verifies that order in which host identifiers are used
     /// to retrieve host reservations can be controlled.
     void hostIdentifiersOrder();
 
@@ -844,7 +844,7 @@ public:
     /// client which identifier doesn't match the identifier in the reservation.
     void changingCircuitId();
 
-    /// @brief  Verifies that extended info is stored on the lease when
+    /// @brief Verifies that extended info is stored on the lease when
     /// store-extended-info is enabled.
     void storeExtendedInfoEnabled();
 

@@ -285,7 +285,7 @@ TEST(D2UpdateMgr, construction) {
               update_mgr->getMaxTransactions());
 
 
-    // Verify that constructor permits custom  max transactions.
+    // Verify that constructor permits custom max transactions.
     ASSERT_NO_THROW(update_mgr.reset(new D2UpdateMgr(queue_mgr, cfg_mgr,
                                                      io_service, 100)));
 

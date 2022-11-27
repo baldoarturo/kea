@@ -290,7 +290,7 @@
 
 /* %endif */
 
-/* First, we deal with  platform-specific or compiler-specific issues. */
+/* First, we deal with platform-specific or compiler-specific issues. */
 
 /* begin standard C headers. */
 /* %if-c-only */
@@ -3274,7 +3274,7 @@ static void yy_load_buffer_state  (void)
  * @return the allocated buffer state.
  */
 /* %if-c-only */
-    YY_BUFFER_STATE yy_create_buffer  (FILE * file, int  size )
+    YY_BUFFER_STATE yy_create_buffer  (FILE * file, int size )
 /* %endif */
 /* %if-c++-only */
 /* %endif */
@@ -3522,7 +3522,7 @@ static void yyensure_buffer_stack (void)
  * 
  * @return the newly allocated buffer state object.
  */
-YY_BUFFER_STATE yy_scan_buffer  (char * base, yy_size_t  size )
+YY_BUFFER_STATE yy_scan_buffer  (char * base, yy_size_t size )
 {
 	YY_BUFFER_STATE b;
     
@@ -3638,7 +3638,7 @@ static void yynoreturn yy_fatal_error (const char* msg )
 		} \
 	while ( 0 )
 
-/* Accessor  methods (get/set functions) to struct members. */
+/* Accessor methods (get/set functions) to struct members. */
 
 /* %if-c-only */
 /* %if-reentrant */
@@ -3813,12 +3813,12 @@ static int yy_flex_strlen (const char * s )
 }
 #endif
 
-void *yyalloc (yy_size_t  size )
+void *yyalloc (yy_size_t size )
 {
 			return malloc(size);
 }
 
-void *yyrealloc  (void * ptr, yy_size_t  size )
+void *yyrealloc  (void * ptr, yy_size_t size )
 {
 		
 	/* The cast to (char *) in the following accommodates both

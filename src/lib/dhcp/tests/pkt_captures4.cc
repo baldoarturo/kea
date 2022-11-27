@@ -10,9 +10,9 @@
 #include <asiolink/io_address.h>
 #include <util/encode/hex.h>
 
-/// @file   wireshark.cc
+/// @file wireshark.cc
 ///
-/// @brief  contains packet captures imported from Wireshark
+/// @brief contains packet captures imported from Wireshark
 ///
 /// These are actual packets captured over wire. They are used in various
 /// tests.

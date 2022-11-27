@@ -614,7 +614,7 @@ public:
     /// verifies connectivity by issuing a known valid query. Next it simulates
     /// connectivity lost by identifying and closing the socket connection to
     /// the CB backend. It then reissues the query and verifies that:
-    /// -# The Query throws  DbOperationError (rather than exiting)
+    /// -# The Query throws DbOperationError (rather than exiting)
     /// -# The registered DbLostCallback was invoked
     /// -# The registered DbRecoveredCallback was invoked
     void testDbLostAndRecoveredCallback();
@@ -626,7 +626,7 @@ public:
     /// verifies connectivity by issuing a known valid query. Next it simulates
     /// connectivity lost by identifying and closing the socket connection to
     /// the CB backend. It then reissues the query and verifies that:
-    /// -# The Query throws  DbOperationError (rather than exiting)
+    /// -# The Query throws DbOperationError (rather than exiting)
     /// -# The registered DbLostCallback was invoked
     /// -# The registered DbFailedCallback was invoked
     void testDbLostAndFailedCallback();
@@ -638,7 +638,7 @@ public:
     /// verifies connectivity by issuing a known valid query. Next it simulates
     /// connectivity lost by identifying and closing the socket connection to
     /// the CB backend. It then reissues the query and verifies that:
-    /// -# The Query throws  DbOperationError (rather than exiting)
+    /// -# The Query throws DbOperationError (rather than exiting)
     /// -# The registered DbLostCallback was invoked
     /// -# The registered DbRecoveredCallback was invoked after two reconnect
     /// attempts (once failing and second triggered by timer)
@@ -651,7 +651,7 @@ public:
     /// verifies connectivity by issuing a known valid query. Next it simulates
     /// connectivity lost by identifying and closing the socket connection to
     /// the CB backend. It then reissues the query and verifies that:
-    /// -# The Query throws  DbOperationError (rather than exiting)
+    /// -# The Query throws DbOperationError (rather than exiting)
     /// -# The registered DbLostCallback was invoked
     /// -# The registered DbFailedCallback was invoked after two reconnect
     /// attempts (once failing and second triggered by timer)

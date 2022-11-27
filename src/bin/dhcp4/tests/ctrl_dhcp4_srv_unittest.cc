@@ -173,7 +173,7 @@ public:
             "       } ]"
             "}";
 
-        // Fill in the socket-name value with socket_path_  to
+        // Fill in the socket-name value with socket_path_ to
         // make the actual configuration text.
         std::string config_txt = header + socket_path_  + footer;
 

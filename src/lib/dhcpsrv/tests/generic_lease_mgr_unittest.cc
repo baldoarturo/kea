@@ -1566,7 +1566,7 @@ GenericLeaseMgrTest::testLease6LeaseTypeCheck() {
     empty_lease->hostname_ = "myhost.example.com.";
     empty_lease->prefixlen_ = 4;
 
-    // Make Two leases per lease type, all with the same  DUID, IAID but
+    // Make Two leases per lease type, all with the same DUID, IAID but
     // alternate the subnet_ids.
     vector<Lease6Ptr> leases;
     for (int i = 0; i < 6; ++i) {
@@ -3620,7 +3620,7 @@ GenericLeaseMgrTest::testLeaseStatsQuery4() {
     }
 
     // Now let's insert some leases into subnet 1.
-    // Two leases in  the default state, i.e. assigned.
+    // Two leases in the default state, i.e. assigned.
     // One lease in declined state.
     // One lease in the expired state.
     int subnet_id = 1;

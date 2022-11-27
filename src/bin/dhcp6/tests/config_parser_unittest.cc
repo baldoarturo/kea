@@ -3516,7 +3516,7 @@ TEST_F(Dhcp6ParserTest, optionDataTwoSpaces) {
     ASSERT_TRUE(desc2.option_);
     EXPECT_EQ(38, desc1.option_->getType());
     // Try to get the non-existing option from the non-existing
-    // option space and  expect that option is not returned.
+    // option space and expect that option is not returned.
     OptionDescriptor desc3 = CfgMgr::instance().getStagingCfg()->
         getCfgOption()->get("non-existing", 38);
     ASSERT_FALSE(desc3.option_);
@@ -4244,7 +4244,7 @@ TEST_F(Dhcp6ParserTest, vendorOptionsHex) {
     EXPECT_EQ(100, desc1.option_->getType());
 
     // Try to get the non-existing option from the non-existing
-    // option space and  expect that option is not returned.
+    // option space and expect that option is not returned.
     OptionDescriptor desc3 =
         CfgMgr::instance().getStagingCfg()->getCfgOption()->get(5678, 38);
     ASSERT_FALSE(desc3.option_);
@@ -4298,7 +4298,7 @@ TEST_F(Dhcp6ParserTest, vendorOptionsCsv) {
     EXPECT_EQ(100, desc1.option_->getType());
 
     // Try to get the non-existing option from the non-existing
-    // option space and  expect that option is not returned.
+    // option space and expect that option is not returned.
     OptionDescriptor desc2 =
         CfgMgr::instance().getStagingCfg()->getCfgOption()->get(5678, 100);
     ASSERT_FALSE(desc2.option_);
@@ -6733,7 +6733,7 @@ TEST_F(Dhcp6ParserTest, sharedNetworksEmptyName) {
         "} \n";
 
     configure(config, CONTROL_RESULT_ERROR,
-              "Shared-network with subnets  is missing mandatory 'name' parameter");
+              "Shared-network with subnets is missing mandatory 'name' parameter");
 }
 
 // Test verifies that a degenerated shared-network (no subnets) is

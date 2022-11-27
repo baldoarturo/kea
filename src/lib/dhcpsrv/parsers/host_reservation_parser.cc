@@ -307,7 +307,7 @@ HostReservationParser6::parseInternal(const SubnetID& subnet_id,
                                       << "' is invalid");
                         }
 
-                        // Remove the  slash character and the prefix length
+                        // Remove the slash character and the prefix length
                         // from the parsed value.
                         prefix.erase(len_pos);
 

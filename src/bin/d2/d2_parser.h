@@ -1142,11 +1142,11 @@ switch (yykind)
 #endif
 
     /// Parse.  An alias for parse ().
-    /// \returns  0 iff parsing succeeded.
+    /// \returns 0 iff parsing succeeded.
     int operator() ();
 
     /// Parse.
-    /// \returns  0 iff parsing succeeded.
+    /// \returns 0 iff parsing succeeded.
     virtual int parse ();
 
 #if D2_PARSER_DEBUG

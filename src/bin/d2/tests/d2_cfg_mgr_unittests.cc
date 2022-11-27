@@ -106,7 +106,7 @@ public:
     /// to D2CfgMgr::parseConfig() method.
     ///
     /// @param config_str the JSON configuration text to parse
-    /// @param error_type  indicates the type error expected, NONE, SYNTAX,
+    /// @param error_type indicates the type error expected, NONE, SYNTAX,
     /// or LOGIC. SYNTAX errors are emitted by JSON parser, logic errors
     /// are emitted by element parser(s).
     /// @param exp_error exact text of the error message expected
@@ -413,7 +413,7 @@ TEST_F(D2CfgMgrTest, invalidEntry) {
     config = makeParamsConfigString ("::", 777, 333, "UDP", "JSON");
     LOGIC_ERROR(config, "IP address cannot be \"::\" (<string>:1:17)");
 
-    // Cannot use port  0
+    // Cannot use port 0
     config = makeParamsConfigString ("127.0.0.1", 0, 333, "UDP", "JSON");
     SYNTAX_ERROR(config, "<string>:1.40: port must be greater than zero but less than 65536");
 
@@ -643,7 +643,7 @@ TEST_F(D2CfgMgrTest, fullConfig) {
 /// 3. Given a FQDN that matches no domain name, returns the wild card domain
 /// as a match.
 TEST_F(D2CfgMgrTest, forwardMatch) {
-    // Create  configuration with one domain, one sub domain, and the wild
+    // Create configuration with one domain, one sub domain, and the wild
     // card.
     std::string config = "{ "
                         "\"ip-address\" : \"192.168.1.33\" , "

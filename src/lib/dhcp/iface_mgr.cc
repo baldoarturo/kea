@@ -1210,7 +1210,7 @@ Pkt4Ptr IfaceMgr::receive4Indirect(uint32_t timeout_sec, uint32_t timeout_usec /
         return (Pkt4Ptr());
     } else if (result < 0) {
         // In most cases we would like to know whether select() returned
-        // an error because of a signal being received  or for some other
+        // an error because of a signal being received or for some other
         // reason. This is because DHCP servers use signals to trigger
         // certain actions, like reconfiguration or graceful shutdown.
         // By catching a dedicated exception the caller will know if the
@@ -1329,7 +1329,7 @@ Pkt4Ptr IfaceMgr::receive4Direct(uint32_t timeout_sec, uint32_t timeout_usec /* 
 
     } else if (result < 0) {
         // In most cases we would like to know whether select() returned
-        // an error because of a signal being received  or for some other
+        // an error because of a signal being received or for some other
         // reason. This is because DHCP servers use signals to trigger
         // certain actions, like reconfiguration or graceful shutdown.
         // By catching a dedicated exception the caller will know if the
@@ -1476,7 +1476,7 @@ IfaceMgr::receive6Direct(uint32_t timeout_sec, uint32_t timeout_usec /* = 0 */ )
 
     } else if (result < 0) {
         // In most cases we would like to know whether select() returned
-        // an error because of a signal being received  or for some other
+        // an error because of a signal being received or for some other
         // reason. This is because DHCP servers use signals to trigger
         // certain actions, like reconfiguration or graceful shutdown.
         // By catching a dedicated exception the caller will know if the
@@ -1600,7 +1600,7 @@ IfaceMgr::receive6Indirect(uint32_t timeout_sec, uint32_t timeout_usec /* = 0 */
         return (Pkt6Ptr());
     } else if (result < 0) {
         // In most cases we would like to know whether select() returned
-        // an error because of a signal being received  or for some other
+        // an error because of a signal being received or for some other
         // reason. This is because DHCP servers use signals to trigger
         // certain actions, like reconfiguration or graceful shutdown.
         // By catching a dedicated exception the caller will know if the
