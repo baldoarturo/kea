@@ -9,7 +9,7 @@ be used in conjunction with the available CB hook libraries implementing
 the common APIs to create, read, update, and delete (CRUD) the
 configuration information in the respective databases. For example:
 the ``mysql_cb`` hook library implements this API for MySQL while the
-``pgsql_cg`` hook library implements this API for PostgreSQL.
+``pgsql_cb`` hook library implements this API for PostgreSQL.
 To manage the configuration information in a MySQL database, both the
 ``mysql_cb`` and ``cb_cmds`` libraries must be loaded by the server used for the
 configuration management.
