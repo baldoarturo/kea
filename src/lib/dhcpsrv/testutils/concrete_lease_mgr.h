@@ -385,6 +385,10 @@ public:
     virtual size_t
     upgradeBinaryAddress6(const LeasePageSize& /* page_size */) override;
 
+    /// @brief Stub implementation.
+    virtual void
+    wipeExtendedInfoTables6() override;
+
     ///  @brief Pretends to write V4 leases to a file.
     virtual void writeLeases4(const std::string&) override;
 

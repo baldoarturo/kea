@@ -4384,5 +4384,24 @@ MySqlLeaseMgr::upgradeBinaryAddress6(const LeasePageSize& page_size) {
     return (updated);
 }
 
+void
+MySqlLeaseMgr::wipeExtendedInfoTables6() {
+    // Get a context
+    MySqlLeaseContextAlloc get_context(*this);
+    MySqlLeaseContextPtr ctx = get_context.ctx_;
+
+    StatementIndex stindex = WIPE_RELAY_ID6;
+    int status = MysqlExecuteStatement(ctx->conn_.statements_[stindex]);
+    if (status != 0) {
+        checkError(ctx, status, stindex, "unable to execute");
+    }
+
+    stindex = WIPE_REMOTE_ID6;
+    status = MysqlExecuteStatement(ctx->conn_.statements_[stindex]);
+    if (status != 0) {
+        checkError(ctx, status, stindex, "unable to execute");
+    }
+}
+
 }  // namespace dhcp
 }  // namespace isc

@@ -1187,6 +1187,9 @@ private:
     /// @return The number of updates in the database.
     virtual size_t upgradeBinaryAddress6(const LeasePageSize& page_size) override;
 
+    /// @brief Wipe by-relay-id table (v6).
+    virtual void wipeExtendedInfoTables6() override;
+
     /// @brief Context RAII allocator.
     class MySqlLeaseContextAlloc {
     public:

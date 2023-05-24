@@ -1424,6 +1424,9 @@ public:
     /// @return Always return 0 as this function is a noop for not SQL backends.
     virtual size_t upgradeBinaryAddress6(const LeasePageSize& page_size) override;
 
+    /// @brief Wipe extended info table (v6).
+    virtual void wipeExtendedInfoTables6() override;
+
 private:
 
     /// @brief Returns existing IPv4 leases with a given relay-id.

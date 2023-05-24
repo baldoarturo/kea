@@ -302,6 +302,11 @@ ConcreteLeaseMgr::upgradeBinaryAddress6(const LeasePageSize& /* page_size */) {
 }
 
 void
+ConcreteLeaseMgr::wipeExtendedInfoTables6() {
+    isc_throw(NotImplemented, "ConcreteLeaseMgr::wipeExtendedInfoTables6() not implemented");
+}
+
+void
 ConcreteLeaseMgr::writeLeases4(const std::string&) {
     isc_throw(NotImplemented, "ConcreteLeaseMgr::writeLeases4() not implemented");
 }
