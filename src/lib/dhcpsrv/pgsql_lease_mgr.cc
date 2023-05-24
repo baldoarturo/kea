@@ -3458,11 +3458,5 @@ PgSqlLeaseMgr::upgradeBinaryAddress6(const LeasePageSize& page_size) {
     return (updated);
 }
 
-size_t
-PgSqlLeaseMgr::buildExtendedInfoTables6(bool /* update */, bool /* current */) {
-    isc_throw(isc::NotImplemented,
-              "PgSqlLeaseMgr::buildExtendedInfoTables6 not implemented");
-}
-
 }  // namespace dhcp
 }  // namespace isc

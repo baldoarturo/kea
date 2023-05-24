@@ -385,10 +385,6 @@ public:
     virtual size_t
     upgradeBinaryAddress6(const LeasePageSize& /* page_size */) override;
 
-    /// @brief Stub implementation.
-    virtual size_t buildExtendedInfoTables6(bool /* update */,
-                                            bool /* current */) override;
-
     ///  @brief Pretends to write V4 leases to a file.
     virtual void writeLeases4(const std::string&) override;
 

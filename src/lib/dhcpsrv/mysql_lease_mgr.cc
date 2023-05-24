@@ -4380,11 +4380,5 @@ MySqlLeaseMgr::upgradeBinaryAddress6(const LeasePageSize& page_size) {
     return (updated);
 }
 
-size_t
-MySqlLeaseMgr::buildExtendedInfoTables6(bool /* update */, bool /* current */) {
-    isc_throw(isc::NotImplemented,
-              "MySqlLeaseMgr::buildExtendedInfoTables6 not implemented");
-}
-
 }  // namespace dhcp
 }  // namespace isc

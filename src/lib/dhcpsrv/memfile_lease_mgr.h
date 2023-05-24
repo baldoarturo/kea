@@ -1424,14 +1424,6 @@ public:
     /// @return Always return 0 as this function is a noop for not SQL backends.
     virtual size_t upgradeBinaryAddress6(const LeasePageSize& page_size) override;
 
-    /// @brief Build extended info v6 tables.
-    ///
-    /// @param update Update extended info in database.
-    /// @param current specify whether to use current (true) or staging
-    /// (false) config.
-    /// @return The number of updates in the database or 0.
-    virtual size_t buildExtendedInfoTables6(bool update, bool current) override;
-
 private:
 
     /// @brief Returns existing IPv4 leases with a given relay-id.
@@ -1520,15 +1512,6 @@ private:
                              uint8_t link_len,
                              const asiolink::IOAddress& lower_bound_address,
                              const LeasePageSize& page_size);
-
-    /// @brief Build extended info v6 tables.
-    ///
-    /// @param update Update extended info in database.
-    /// @param current specify whether to use current (true) or staging
-    /// (false) config.
-    /// @return The number of updates in the database or 0.
-    size_t buildExtendedInfoTables6Internal(bool update, bool current);
-
 public:
 
     /// @brief Write V4 leases to a file.
@@ -1550,6 +1533,10 @@ public:
 protected:
 
     /// Extended information / Bulk Lease Query shared interface.
+
+
+    /// @brief Build extended info v6 tables.
+    void buildExtendedInfoTables6();
 
     /// @brief Delete lease6 extended info from tables.
     ///

@@ -301,12 +301,6 @@ ConcreteLeaseMgr::upgradeBinaryAddress6(const LeasePageSize& /* page_size */) {
     return (0);
 }
 
-size_t
-ConcreteLeaseMgr::buildExtendedInfoTables6(bool /* update */,
-                                           bool /* current */) {
-    isc_throw(isc::NotImplemented, "ConcreteLeaseMgr:buildExtendedInfoTables6 not implemented");
-}
-
 void
 ConcreteLeaseMgr::writeLeases4(const std::string&) {
     isc_throw(NotImplemented, "ConcreteLeaseMgr::writeLeases4() not implemented");
