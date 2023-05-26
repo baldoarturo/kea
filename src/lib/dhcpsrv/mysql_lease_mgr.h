@@ -1189,6 +1189,19 @@ public:
     /// @return The number of updates in the database.
     virtual size_t upgradeBinaryAddress6(const LeasePageSize& page_size) override;
 
+    /// @brief Upgrade extended info (v6).
+    ///
+    /// All leases with a not null user context.
+    ///  - sanitize the user context
+    ///  - update relay and remote id tables
+    ///  - when the lease was modified update it in the database
+    /// This function implements the new BLQ hook command named
+    /// "extended-info6-upgrade".
+    ///
+    /// @param page_size The page size used for retrieval.
+    /// @return The number of updates in the database.
+    virtual size_t upgradeExtendedInfo6(const LeasePageSize& page_size) override;
+
     /// @brief Wipe by-relay-id table (v6).
     virtual void wipeExtendedInfoTables6() override;
 

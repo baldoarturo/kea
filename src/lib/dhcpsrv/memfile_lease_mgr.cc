@@ -3473,6 +3473,11 @@ Memfile_LeaseMgr::upgradeBinaryAddress6(const LeasePageSize& /* page_size */) {
     return (0);
 }
 
+size_t
+Memfile_LeaseMgr::upgradeExtendedInfo6(const LeasePageSize& /* page_size */) {
+    return (0);
+}
+
 void
 Memfile_LeaseMgr::deleteExtendedInfo6(const IOAddress& addr) {
     LeaseAddressRelayIdIndex& relay_id_idx =

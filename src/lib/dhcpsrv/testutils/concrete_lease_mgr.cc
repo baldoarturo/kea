@@ -301,6 +301,11 @@ ConcreteLeaseMgr::upgradeBinaryAddress6(const LeasePageSize& /* page_size */) {
     return (0);
 }
 
+size_t
+ConcreteLeaseMgr::upgradeExtendedInfo6(const LeasePageSize& /* page_size */) {
+    return (0);
+}
+
 void
 ConcreteLeaseMgr::wipeExtendedInfoTables6() {
     isc_throw(NotImplemented, "ConcreteLeaseMgr::wipeExtendedInfoTables6() not implemented");

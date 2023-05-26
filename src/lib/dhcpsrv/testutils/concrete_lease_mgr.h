@@ -386,6 +386,10 @@ public:
     upgradeBinaryAddress6(const LeasePageSize& /* page_size */) override;
 
     /// @brief Stub implementation.
+    virtual size_t
+    upgradeExtendedInfo6(const LeasePageSize& /* page_size */) override;
+
+    /// @brief Stub implementation.
     virtual void
     wipeExtendedInfoTables6() override;
 
