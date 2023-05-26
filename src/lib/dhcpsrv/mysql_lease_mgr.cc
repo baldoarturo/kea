@@ -4961,9 +4961,9 @@ MySqlLeaseMgr::byRelayId6size() const {
     MYSQL_BIND bind[1];
     memset(bind, 0, sizeof(bind));
 
-    int64_t result = 0;
+    int64_t count = 0;
     bind[0].buffer_type = MYSQL_TYPE_LONGLONG;
-    bind[0].buffer = reinterpret_cast<char*>(&result);
+    bind[0].buffer = reinterpret_cast<char*>(&count);
 
     int status = mysql_stmt_bind_result(ctx->conn_.statements_[stindex], &bind[0]);
     checkError(ctx, status, stindex, "unable to bind SELECT clause parameters");
@@ -4974,12 +4974,17 @@ MySqlLeaseMgr::byRelayId6size() const {
         checkError(ctx, status, stindex, "unable to execute");
     }
 
+    status = mysql_stmt_store_result(ctx->conn_.statements_[stindex]);
+    checkError(ctx, status, stindex, "unable to store result");
+
     // Fetch the result.
+    MySqlFreeResult fetch_release(ctx->conn_.statements_[stindex]);
+
     status = mysql_stmt_fetch(ctx->conn_.statements_[stindex]);
     if (status != 0) {
         checkError(ctx, status, stindex, "unable to fetch results");
     }
-    return(result);
+    return (static_cast<size_t>(count));
 }
 
 size_t
@@ -4994,9 +4999,9 @@ MySqlLeaseMgr::byRemoteId6size() const {
     MYSQL_BIND bind[1];
     memset(bind, 0, sizeof(bind));
 
-    int64_t result = 0;
+    int64_t count = 0;
     bind[0].buffer_type = MYSQL_TYPE_LONGLONG;
-    bind[0].buffer = reinterpret_cast<char*>(&result);
+    bind[0].buffer = reinterpret_cast<char*>(&count);
 
     int status = mysql_stmt_bind_result(ctx->conn_.statements_[stindex], &bind[0]);
     checkError(ctx, status, stindex, "unable to bind SELECT clause parameters");
@@ -5007,12 +5012,17 @@ MySqlLeaseMgr::byRemoteId6size() const {
         checkError(ctx, status, stindex, "unable to execute");
     }
 
+    status = mysql_stmt_store_result(ctx->conn_.statements_[stindex]);
+    checkError(ctx, status, stindex, "unable to store result");
+
     // Fetch the result.
+    MySqlFreeResult fetch_release(ctx->conn_.statements_[stindex]);
+
     status = mysql_stmt_fetch(ctx->conn_.statements_[stindex]);
     if (status != 0) {
         checkError(ctx, status, stindex, "unable to fetch results");
     }
-    return(result);
+    return (static_cast<size_t>(count));
 }
 
 }  // namespace dhcp
