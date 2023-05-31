@@ -2281,6 +2281,7 @@ Dhcpv6Srv::createNameChangeRequests(const Pkt6Ptr& answer,
         // holds a fully qualified domain-name already (not partial).
         // Get the IP address from the lease.
         NameChangeRequestPtr ncr;
+        auto cr_mode = StringToConflictResolutionMode(ctx.getDdnsParams()->getConflictResolutionMode());
         ncr.reset(new NameChangeRequest(isc::dhcp_ddns::CHG_ADD,
                                         do_fwd, do_rev,
                                         opt_fqdn->getDomainName(),
@@ -2288,7 +2289,7 @@ Dhcpv6Srv::createNameChangeRequests(const Pkt6Ptr& answer,
                                         dhcid, 0,
                                         calculateDdnsTtl(iaaddr->getValid(),
                                                          ctx.getDdnsParams()->getTtlPercent()),
-                                        ctx.getDdnsParams()->getUseConflictResolution()));
+                                        cr_mode));
         LOG_DEBUG(ddns6_logger, DBG_DHCP6_DETAIL,
                   DHCP6_DDNS_CREATE_ADD_NAME_CHANGE_REQUEST).arg(ncr->toText());
 

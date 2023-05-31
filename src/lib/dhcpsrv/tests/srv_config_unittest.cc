@@ -18,6 +18,7 @@
 #include <gtest/gtest.h>
 
 using namespace isc::asiolink;
+using namespace isc::dhcp_ddns;
 using namespace isc::dhcp;
 using namespace isc::data;
 using namespace isc::process;
@@ -1451,8 +1452,8 @@ TEST_F(SrvConfigTest, getDdnsParamsTest4) {
     // Configure global host sanitizing.
     conf.addConfiguredGlobal("hostname-char-set", Element::create("[^A-Z]"));
     conf.addConfiguredGlobal("hostname-char-replacement", Element::create("x"));
-    // Enable conflict resolution globally.
-    conf.addConfiguredGlobal("ddns-use-conflict-resolution", Element::create(true));
+    // Specify conflict resolution mode globally.
+    conf.addConfiguredGlobal("ddns-conflict-resolution-mode", Element::create("check-with-dhcid"));
     // Configure TTL percent globally.
     conf.addConfiguredGlobal("ddns-ttl-percent", Element::create(20.0));
 
@@ -1493,7 +1494,7 @@ TEST_F(SrvConfigTest, getDdnsParamsTest4) {
     subnet2->setDdnsQualifyingSuffix("example.com.");
     subnet2->setHostnameCharSet("");
     subnet2->setDdnsUpdateOnRenew(true);
-    subnet2->setDdnsUseConflictResolution(false);
+    subnet2->setDdnsConflictResolutionMode("no-check-with-dhcid");
     subnet2->setDdnsTtlPercent(Optional<double>(40.0));
 
     // Get DDNS params for subnet1.
@@ -1509,7 +1510,7 @@ TEST_F(SrvConfigTest, getDdnsParamsTest4) {
     EXPECT_EQ("[^A-Z]", params->getHostnameCharSet());
     EXPECT_EQ("x", params->getHostnameCharReplacement());
     EXPECT_FALSE(params->getUpdateOnRenew());
-    EXPECT_TRUE(params->getUseConflictResolution());
+    EXPECT_EQ("check-with-dhcid", params->getConflictResolutionMode());
     EXPECT_FALSE(params->getTtlPercent().unspecified());
     EXPECT_EQ(20.0, params->getTtlPercent().get());
 
@@ -1533,7 +1534,7 @@ TEST_F(SrvConfigTest, getDdnsParamsTest4) {
     EXPECT_EQ("", params->getHostnameCharSet());
     EXPECT_EQ("x", params->getHostnameCharReplacement());
     EXPECT_TRUE(params->getUpdateOnRenew());
-    EXPECT_FALSE(params->getUseConflictResolution());
+    EXPECT_EQ("no-check-with-dhcid", params->getConflictResolutionMode());
     EXPECT_FALSE(params->getTtlPercent().unspecified());
     EXPECT_EQ(40.0, params->getTtlPercent().get());
 
@@ -1590,7 +1591,8 @@ TEST_F(SrvConfigTest, getDdnsParamsNoSubnetTest4) {
     conf.addConfiguredGlobal("hostname-char-set", Element::create("[^A-Z]"));
     conf.addConfiguredGlobal("hostname-char-replacement", Element::create("x"));
     conf.addConfiguredGlobal("ddns-update-on-renew", Element::create(true));
-    conf.addConfiguredGlobal("ddns-use-conflict-resolution", Element::create(false));
+    conf.addConfiguredGlobal("ddns-conflict-resolution-mode",
+                             Element::create("no-check-with-dhcid"));
     conf.addConfiguredGlobal("ddns-ttl-percent", Element::create(77.0));
 
     // Get DDNS params for no subnet.
@@ -1607,7 +1609,7 @@ TEST_F(SrvConfigTest, getDdnsParamsNoSubnetTest4) {
     EXPECT_TRUE(params->getHostnameCharSet().empty());
     EXPECT_TRUE(params->getHostnameCharReplacement().empty());
     EXPECT_FALSE(params->getUpdateOnRenew());
-    EXPECT_TRUE(params->getUseConflictResolution());
+    EXPECT_EQ("check-with-dhcid", params->getConflictResolutionMode());
     EXPECT_TRUE(params->getTtlPercent().unspecified());
 }
 
@@ -1628,8 +1630,10 @@ TEST_F(SrvConfigTest, getDdnsParamsTest6) {
     // Configure global host sanitizing.
     conf.addConfiguredGlobal("hostname-char-set", Element::create("[^A-Z]"));
     conf.addConfiguredGlobal("hostname-char-replacement", Element::create("x"));
-    // Enable conflict resolution globally.
-    conf.addConfiguredGlobal("ddns-use-conflict-resolution", Element::create(true));
+    // Specify conflict resolution mode globally.
+    conf.addConfiguredGlobal("ddns-conflict-resolution-mode",
+                             Element::create("check-with-dhcid"));
+
     // Configure TTL percent globally.
     conf.addConfiguredGlobal("ddns-ttl-percent", Element::create(25.0));
 
@@ -1670,7 +1674,7 @@ TEST_F(SrvConfigTest, getDdnsParamsTest6) {
     subnet2->setDdnsQualifyingSuffix("example.com.");
     subnet2->setHostnameCharSet("");
     subnet2->setDdnsUpdateOnRenew(true);
-    subnet2->setDdnsUseConflictResolution(false);
+    subnet2->setDdnsConflictResolutionMode("no-check-with-dhcid");
     subnet2->setDdnsTtlPercent(Optional<double>(45.0));
 
     // Get DDNS params for subnet1.
@@ -1686,7 +1690,7 @@ TEST_F(SrvConfigTest, getDdnsParamsTest6) {
     EXPECT_EQ("[^A-Z]", params->getHostnameCharSet());
     EXPECT_EQ("x", params->getHostnameCharReplacement());
     EXPECT_FALSE(params->getUpdateOnRenew());
-    EXPECT_TRUE(params->getUseConflictResolution());
+    EXPECT_EQ("check-with-dhcid", params->getConflictResolutionMode());
     EXPECT_FALSE(params->getTtlPercent().unspecified());
     EXPECT_EQ(25.0, params->getTtlPercent().get());
 
@@ -1710,7 +1714,7 @@ TEST_F(SrvConfigTest, getDdnsParamsTest6) {
     EXPECT_EQ("", params->getHostnameCharSet());
     EXPECT_EQ("x", params->getHostnameCharReplacement());
     EXPECT_TRUE(params->getUpdateOnRenew());
-    EXPECT_FALSE(params->getUseConflictResolution());
+    EXPECT_EQ("no-check-with-dhcid", params->getConflictResolutionMode());
     EXPECT_FALSE(params->getTtlPercent().unspecified());
     EXPECT_EQ(45.0, params->getTtlPercent().get());
 
@@ -1784,7 +1788,7 @@ TEST_F(SrvConfigTest, getDdnsParamsNoSubnetTest6) {
     EXPECT_TRUE(params->getHostnameCharSet().empty());
     EXPECT_TRUE(params->getHostnameCharReplacement().empty());
     EXPECT_FALSE(params->getUpdateOnRenew());
-    EXPECT_TRUE(params->getUseConflictResolution());
+    EXPECT_EQ("check-with-dhcid", params->getConflictResolutionMode());
     EXPECT_TRUE(params->getTtlPercent().unspecified());
 }
 
@@ -2328,5 +2332,42 @@ TEST_F(SrvConfigTest, sanityChecksLifetime) {
                          isc::BadValue, msg);
     }
 }
+
+#if 0
+// Verifies the conflict resolution mode if the older configuration item
+// is specified
+TEST_F(SrvConfigTest, getDdnsConflictResolutionMode) {
+    DdnsParamsPtr params;
+
+    CfgMgr::instance().setFamily(AF_INET);
+    SrvConfig conf(32);
+
+    // Enable conflict resolution globally.
+    conf.addConfiguredGlobal("ddns-use-conflict-resolution", Element::create(true));
+
+    // Add a plain subnet
+    Triplet<uint32_t> def_triplet;
+    Subnet4Ptr subnet1(new Subnet4(IOAddress("192.0.1.0"), 24,
+                                    def_triplet, def_triplet, 4000, SubnetID(1)));
+    /// TKM - does this make sense?
+    subnet1->setDdnsUseConflictResolution(false);
+
+    // In order to take advantage of the dynamic inheritance of global
+    // parameters to a subnet we need to set a callback function for each
+    // subnet to allow for fetching global parameters.
+    subnet1->setFetchGlobalsFn([conf]() -> ConstCfgGlobalsPtr {
+        return (conf.getConfiguredGlobals());
+    });
+
+    conf.getCfgSubnets4()->add(subnet1);
+
+    // Get DDNS params for subnet1.
+    ASSERT_NO_THROW(params = conf_.getDdnsParams(subnet1));
+
+    // Verify subnet1 values are right.
+    EXPECT_FALSE(params->getUseConflictResolution());
+    EXPECT_EQ("no-check-with-dhcid", params->getConflictResolutionMode());
+}
+#endif
 
 } // end of anonymous namespace
