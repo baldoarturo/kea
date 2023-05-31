@@ -4850,9 +4850,6 @@ MySqlLeaseMgr::getLeases6ByLink(const IOAddress& link_addr,
 
 size_t
 MySqlLeaseMgr::upgradeBinaryAddress6(const LeasePageSize& page_size) {
-    auto check = CfgMgr::instance().getCurrentCfg()->
-        getConsistency()->getExtendedInfoSanityCheck();
-
     size_t pages = 0;
     size_t updated = 0;
     IOAddress start_addr = IOAddress::IPV6_ZERO_ADDRESS();
