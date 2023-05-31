@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 // A Bison parser, made by GNU Bison 3.8.2.
 
 // Locations for Bison parsers in C++
