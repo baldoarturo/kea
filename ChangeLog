@@ -1,3 +1,14 @@
+2145.	[func]		tmark
+	The kea-dhcp<4/6> parameter, ddns-use-conflict-resolution,
+	has been deprecated and replaced with
+	ddns-conflict-resolution-mode.  The new parameter supports
+	four modes of behavior pertaining to DDNS update conflict
+	resolution: check-with-dhcid, no-check-with-dhcid,
+	check-exists-with-dhcid, and no-check-without-dhcid.
+	Thanks to Shawn Routhier from Infoblox for contributing
+	the patch to implement this feature.
+	(Gitlab #2276)
+
 2145.	[bug]		piotrek
 	Fixed a bug in kea-admin script where lack of lease type argument
 	was not caught correctly and kea-lfc was called without -4 or -6
