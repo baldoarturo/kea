@@ -5123,6 +5123,8 @@ ALTER TABLE dhcp6_subnet ADD COLUMN pd_allocator TEXT NULL;
 ALTER TABLE dhcp6_shared_network ADD COLUMN allocator TEXT NULL;
 ALTER TABLE dhcp6_shared_network ADD COLUMN pd_allocator TEXT NULL;
 
+ALTER TABLE lease6 MODIFY COLUMN address BINARY(16);
+
 -- Update the schema version number.
 UPDATE schema_version
     SET version = '17', minor = '0';

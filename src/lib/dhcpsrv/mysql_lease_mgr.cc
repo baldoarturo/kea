@@ -38,6 +38,8 @@ using namespace isc::data;
 using namespace isc::util;
 using namespace std;
 
+//#define ORG_CODE
+
 /// @file
 ///
 /// This file holds the implementation of the Lease Manager using MySQL.  The
@@ -1084,7 +1086,9 @@ public:
                             fqdn_fwd_(false), fqdn_rev_(false),
                             hostname_length_(0), hwtype_(0), hwaddr_source_(0),
                             state_(0), user_context_length_(0),
-                            user_context_null_(MLM_FALSE) {
+                            user_context_null_(MLM_FALSE),
+                            binaddr_length_(16)
+ {
         memset(addr6_buffer_, 0, sizeof(addr6_buffer_));
         memset(duid_buffer_, 0, sizeof(duid_buffer_));
         memset(hostname_buffer_, 0, sizeof(hostname_buffer_));
@@ -1134,6 +1138,7 @@ public:
         memset(bind_, 0, sizeof(bind_));
 
         try {
+#ifdef ORG_CODE
             // address: varchar(39)
             addr6_ = lease_->addr_.toText();
             addr6_length_ = addr6_.size();
@@ -1158,7 +1163,18 @@ public:
             bind_[0].length = &addr6_length_;
             // bind_[0].is_null = &MLM_FALSE; // commented out for performance
                                               // reasons, see memset() above
+#else
+            binaddr_ = lease->addr_.toBytes();
+            if (binaddr_.size() != 16) {
+                isc_throw(DbOperationError, "lease6 address is not 16 bytes long");
+            }
 
+            binaddr_length_ = 16;
+            bind_[0].buffer_type = MYSQL_TYPE_BLOB;
+            bind_[0].buffer = reinterpret_cast<char*>(&binaddr_[0]);
+            bind_[0].buffer_length = 16;
+            bind_[0].length = &binaddr_length_;
+#endif
             // duid: varchar(128)
             if (!lease_->duid_) {
                 isc_throw(DbOperationError, "lease6 for address " << addr6_
@@ -1387,6 +1403,7 @@ public:
         // code that explicitly sets is_null is there, but is commented out.
         memset(bind_, 0, sizeof(bind_));
 
+#ifdef ORG_CODE
         // address: varchar(39)
         // A Lease6_ address has a maximum of 39 characters.  The array is
         // one byte longer than this to guarantee that we can always null
@@ -1398,6 +1415,13 @@ public:
         bind_[0].length = &addr6_length_;
         // bind_[0].is_null = &MLM_FALSE; // commented out for performance
                                           // reasons, see memset() above
+#else
+        binaddr_length_ = 16;
+        bind_[0].buffer_type = MYSQL_TYPE_BLOB;
+        bind_[0].buffer = reinterpret_cast<char*>(binaddr_buffer_);
+        bind_[0].buffer_length = binaddr_length_;
+        bind_[0].length = &binaddr_length_;
+#endif
 
         // client_id: varbinary(128)
         duid_length_ = sizeof(duid_buffer_);
@@ -1537,12 +1561,17 @@ public:
     ///
     /// @throw isc::BadValue Unable to convert Lease Type value in database
     Lease6Ptr getLeaseData() {
+#ifdef ORG_CODE
         // The address buffer is declared larger than the buffer size passed
         // to the access function so that we can always append a null byte.
         // Create the IOAddress object corresponding to the received data.
         addr6_buffer_[addr6_length_] = '\0';
         std::string address = addr6_buffer_;
         IOAddress addr(address);
+#else
+        IOAddress addr = IOAddress::fromBytes(AF_INET6, binaddr_buffer_);
+        std::string address = addr.toText();
+#endif
 
         // Set the lease type in a variable of the appropriate data type, which
         // has been initialized with an arbitrary (but valid) value.
@@ -1678,6 +1707,9 @@ private:
     char                 user_context_[USER_CONTEXT_MAX_LEN];      ///< User context
     unsigned long        user_context_length_;                     ///< Length of user context
     my_bool              user_context_null_;                       ///< Used when user context is null
+    std::vector<uint8_t> binaddr_;                                 ///< Binary address
+    unsigned long        binaddr_length_;                          ///< Length of binary data
+    uint8_t              binaddr_buffer_[16];                      ///< DUID buffer
 };
 
 /// @brief MySql derivation of the statistical lease data query
@@ -2684,6 +2716,7 @@ MySqlLeaseMgr::getLease6(Lease::Type lease_type,
     MYSQL_BIND inbind[2];
     memset(inbind, 0, sizeof(inbind));
 
+#ifdef ORG_CODE
     std::string addr6 = addr.toText();
     unsigned long addr6_length = addr6.size();
 
@@ -2693,6 +2726,19 @@ MySqlLeaseMgr::getLease6(Lease::Type lease_type,
     inbind[0].buffer = const_cast<char*>(addr6.c_str());
     inbind[0].buffer_length = addr6_length;
     inbind[0].length = &addr6_length;
+#else
+    // binaddr: binary(16)
+    std::vector<uint8_t>binaddr = addr.toBytes();
+    if (binaddr.size() != 16) {
+        isc_throw(DbOperationError, "lease6 address is not 16 bytes long");
+    }
+
+    unsigned long binaddr_length = 16;
+    inbind[0].buffer_type = MYSQL_TYPE_BLOB;
+    inbind[0].buffer = reinterpret_cast<char*>(&binaddr[0]);
+    inbind[0].buffer_length = 16;
+    inbind[0].length = &binaddr_length;
+#endif
 
     // LEASE_TYPE
     inbind[1].buffer_type = MYSQL_TYPE_TINY;
@@ -2937,6 +2983,7 @@ MySqlLeaseMgr::getLeases6(const IOAddress& lower_bound_address,
     MYSQL_BIND inbind[2];
     memset(inbind, 0, sizeof(inbind));
 
+#if ORG_CODE
     // In IPv6 we compare addresses represented as strings. The IPv6 zero address
     // is ::, so it is greater than any other address. In this special case, we
     // just use 0 for comparison which should be lower than any real IPv6 address.
@@ -2951,6 +2998,18 @@ MySqlLeaseMgr::getLeases6(const IOAddress& lower_bound_address,
     inbind[0].buffer = const_cast<char*>(lb_address_data.c_str());
     inbind[0].buffer_length = lb_address_data_size;
     inbind[0].length = &lb_address_data_size;
+#else
+    std::vector<uint8_t>binaddr = lower_bound_address.toBytes();
+    if (binaddr.size() != 16) {
+        isc_throw(DbOperationError, "lease6 address is not 16 bytes long");
+    }
+
+    unsigned long binaddr_length = 16;
+    inbind[0].buffer_type = MYSQL_TYPE_BLOB;
+    inbind[0].buffer = reinterpret_cast<char*>(&binaddr[0]);
+    inbind[0].buffer_length = 16;
+    inbind[0].length = &binaddr_length;
+#endif
 
     // Bind page size value
     uint32_t ps = static_cast<uint32_t>(page_size.page_size_);
@@ -3135,6 +3194,7 @@ MySqlLeaseMgr::updateLease6(const Lease6Ptr& lease) {
     MYSQL_BIND inbind[2];
     memset(inbind, 0, sizeof(inbind));
 
+#ifdef ORG_CODE
     std::string addr6 = lease->addr_.toText();
     unsigned long addr6_length = addr6.size();
 
@@ -3144,6 +3204,18 @@ MySqlLeaseMgr::updateLease6(const Lease6Ptr& lease) {
     inbind[0].buffer = const_cast<char*>(addr6.c_str());
     inbind[0].buffer_length = addr6_length;
     inbind[0].length = &addr6_length;
+#else
+    std::vector<uint8_t>binaddr = lease->addr_.toBytes();
+    if (binaddr.size() != 16) {
+        isc_throw(DbOperationError, "lease6 address is not 16 bytes long");
+    }
+
+    unsigned long binaddr_length = 16;
+    inbind[0].buffer_type = MYSQL_TYPE_BLOB;
+    inbind[0].buffer = reinterpret_cast<char*>(&binaddr[0]);
+    inbind[0].buffer_length = 16;
+    inbind[0].length = &binaddr_length;
+#endif
 
     bind.push_back(inbind[0]);
 
@@ -3261,6 +3333,7 @@ MySqlLeaseMgr::deleteLease(const Lease6Ptr& lease) {
     MYSQL_BIND inbind[2];
     memset(inbind, 0, sizeof(inbind));
 
+#ifdef ORG_CODE
     std::string addr6 = addr.toText();
     unsigned long addr6_length = addr6.size();
 
@@ -3270,6 +3343,18 @@ MySqlLeaseMgr::deleteLease(const Lease6Ptr& lease) {
     inbind[0].buffer = const_cast<char*>(addr6.c_str());
     inbind[0].buffer_length = addr6_length;
     inbind[0].length = &addr6_length;
+#else
+    std::vector<uint8_t>binaddr = addr.toBytes();
+    if (binaddr.size() != 16) {
+        isc_throw(DbOperationError, "lease6 address is not 16 bytes long");
+    }
+
+    unsigned long binaddr_length = 16;
+    inbind[0].buffer_type = MYSQL_TYPE_BLOB;
+    inbind[0].buffer = reinterpret_cast<char*>(&binaddr[0]);
+    inbind[0].buffer_length = 16;
+    inbind[0].length = &binaddr_length;
+#endif
 
     // See the expire code of createBindForSend for the
     // infinite valid lifetime special case.
