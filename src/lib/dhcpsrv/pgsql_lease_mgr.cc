@@ -53,7 +53,11 @@ PgSqlTaggedStatement tagged_statements[] = {
           "WHERE state = $1 AND expire < $2"},
 
     // DELETE_LEASE6
+#ifdef ORG_CODE
     { 2, { OID_VARCHAR, OID_TIMESTAMP },
+#else
+    { 2, { OID_BYTEA, OID_TIMESTAMP },
+#endif
       "delete_lease6",
       "DELETE FROM lease6 WHERE address = $1 AND expire = $2"},
 
@@ -289,7 +293,11 @@ PgSqlTaggedStatement tagged_statements[] = {
       "FROM lease6"},
 
     // GET_LEASE6_ADDR
+#ifdef ORG_CODE
     { 2, { OID_VARCHAR, OID_INT2 },
+#else
+    { 2, { OID_BYTEA, OID_INT2 },
+#endif
       "get_lease6_addr",
       "SELECT address, duid, valid_lifetime, "
         "extract(epoch from expire)::bigint, subnet_id, pref_lifetime, "
@@ -323,7 +331,11 @@ PgSqlTaggedStatement tagged_statements[] = {
         "AND duid = $2 AND iaid = $3 AND subnet_id = $4"},
 
     // GET_LEASE6_PAGE
+#ifdef ORG_CODE
     { 2, { OID_VARCHAR, OID_INT8 },
+#else
+    { 2, { OID_BYTEA, OID_INT8 },
+#endif
       "get_lease6_page",
       "SELECT address, duid, valid_lifetime, "
         "extract(epoch from expire)::bigint, subnet_id, pref_lifetime, "
@@ -393,7 +405,11 @@ PgSqlTaggedStatement tagged_statements[] = {
       "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)"},
 
     // INSERT_LEASE6
+#ifdef ORG_CODE
     { 17, { OID_VARCHAR, OID_BYTEA, OID_INT8, OID_TIMESTAMP, OID_INT8,
+#else
+    { 17, { OID_BYTEA, OID_BYTEA, OID_INT8, OID_TIMESTAMP, OID_INT8,
+#endif
             OID_INT8, OID_INT2, OID_INT8, OID_INT2, OID_BOOL, OID_BOOL,
             OID_VARCHAR, OID_BYTEA, OID_INT2, OID_INT2, OID_INT8, OID_TEXT },
       "insert_lease6",
@@ -416,10 +432,17 @@ PgSqlTaggedStatement tagged_statements[] = {
       "WHERE address = $14 AND expire = $15"},
 
     // UPDATE_LEASE6
+#ifdef ORG_CODE
     { 19, { OID_VARCHAR, OID_BYTEA, OID_INT8, OID_TIMESTAMP, OID_INT8, OID_INT8,
             OID_INT2, OID_INT8, OID_INT2, OID_BOOL, OID_BOOL, OID_VARCHAR,
             OID_BYTEA, OID_INT2, OID_INT2,
             OID_INT8, OID_TEXT, OID_VARCHAR, OID_TIMESTAMP },
+#else
+    { 19, { OID_BYTEA, OID_BYTEA, OID_INT8, OID_TIMESTAMP, OID_INT8, OID_INT8,
+            OID_INT2, OID_INT8, OID_INT2, OID_BOOL, OID_BOOL, OID_VARCHAR,
+            OID_BYTEA, OID_INT2, OID_INT2,
+            OID_INT8, OID_TEXT, OID_BYTEA, OID_TIMESTAMP },
+#endif
       "update_lease6",
       "UPDATE lease6 SET address = $1, duid = $2, "
         "valid_lifetime = $3, expire = $4, subnet_id = $5, "
@@ -875,7 +898,8 @@ public:
           iaid_str_(""), lease_type_(Lease6::TYPE_NA), lease_type_str_(""),
           prefix_len_(0), prefix_len_str_(""), pref_lifetime_(0),
           preferred_lifetime_str_(""), hwtype_(0), hwtype_str_(""),
-          hwaddr_source_(0), hwaddr_source_str_("") {
+          hwaddr_source_(0), hwaddr_source_str_(""),
+          address_length_(0), address_(0) {
 
         BOOST_STATIC_ASSERT(15 < LEASE_COLUMNS);
 
@@ -921,8 +945,13 @@ public:
         // Store lease object to ensure it remains valid.
         lease_ = lease;
         try {
-            addr_str_ = lease_->addr_.toText();
-            bind_array.add(addr_str_);
+#ifdef ORG_CODE
+             addr_str_ = lease_->addr_.toText();
+             bind_array.add(addr_str_);
+#else
+            address_ = lease_->addr_.toBytes();
+            bind_array.add(address_);
+#endif
 
             if (lease_->duid_) {
                 bind_array.add(lease_->duid_->getDuid());
@@ -1038,8 +1067,12 @@ public:
             /// retrieved values should be checked for being NULL to
             /// prevent cryptic errors during conversions from NULL
             /// to actual values.
-
+#ifdef ORG_CODE
             IOAddress addr(getIPv6Value(r, row, ADDRESS_COL));
+#else
+            convertFromBytea(r, row, ADDRESS_COL, address_buffer_, sizeof(address_buffer_), address_length_);
+            IOAddress addr = IOAddress::fromBytes(AF_INET6, address_buffer_);
+#endif
 
             convertFromBytea(r, row, DUID_COL, duid_buffer_, sizeof(duid_buffer_), duid_length_);
             DuidPtr duid_ptr(new DUID(duid_buffer_, duid_length_));
@@ -1179,6 +1212,9 @@ private:
     std::string          hwtype_str_;
     uint32_t             hwaddr_source_;
     std::string          hwaddr_source_str_;
+    size_t               address_length_;
+    std::vector<uint8_t> address_;
+    uint8_t              address_buffer_[16];
     //@}
 };
 
@@ -2011,8 +2047,13 @@ PgSqlLeaseMgr::getLease6(Lease::Type lease_type,
     PsqlBindArray bind_array;
 
     // LEASE ADDRESS
+#ifdef ORG_CODE
     std::string addr_str = addr.toText();
     bind_array.add(addr_str);
+#else
+    std::vector<uint8_t> addr_data = addr.toBytes();
+    bind_array.add(addr_data);
+#endif
 
     // LEASE_TYPE
     std::string type_str_ = boost::lexical_cast<std::string>(lease_type);
@@ -2207,6 +2248,7 @@ PgSqlLeaseMgr::getLeases6(const IOAddress& lower_bound_address,
     // Prepare WHERE clause
     PsqlBindArray bind_array;
 
+#ifdef ORG_CODE
     // In IPv6 we compare addresses represented as strings. The IPv6 zero address
     // is ::, so it is greater than any other address. In this special case, we
     // just use 0 for comparison which should be lower than any real IPv6 address.
@@ -2217,6 +2259,10 @@ PgSqlLeaseMgr::getLeases6(const IOAddress& lower_bound_address,
 
     // Bind lower bound address
     bind_array.add(lb_address_data);
+#else
+    std::vector<uint8_t> lb_address_data = lower_bound_address.toBytes();
+    bind_array.add(lb_address_data);
+#endif
 
     // Bind page size value
     std::string page_size_data = boost::lexical_cast<std::string>(page_size.page_size_);
@@ -2371,8 +2417,13 @@ PgSqlLeaseMgr::updateLease6(const Lease6Ptr& lease) {
     ctx->exchange6_->createBindForSend(lease, bind_array);
 
     // Set up the WHERE clause and append it to the BIND array
+#ifdef ORG_CODE
     std::string addr_str = lease->addr_.toText();
     bind_array.add(addr_str);
+#else
+    std::vector<uint8_t> addr_data = lease->addr_.toBytes();
+    bind_array.add(addr_data);
+#endif
 
     std::string expire_str;
     // Avoid overflow (see createBindForSend)
@@ -2469,8 +2520,13 @@ PgSqlLeaseMgr::deleteLease(const Lease6Ptr& lease) {
     // Set up the WHERE clause value
     PsqlBindArray bind_array;
 
+#ifdef ORG_CODE
     std::string addr6_str = addr.toText();
     bind_array.add(addr6_str);
+#else
+    std::vector<uint8_t> addr_data = addr.toBytes();
+    bind_array.add(addr_data);
+#endif
 
     std::string expire_str;
     // Avoid overflow (see createBindForSend)

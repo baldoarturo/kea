@@ -5683,6 +5683,11 @@ ALTER TABLE dhcp6_subnet ADD COLUMN pd_allocator TEXT DEFAULT NULL;
 ALTER TABLE dhcp6_shared_network ADD COLUMN allocator TEXT DEFAULT NULL;
 ALTER TABLE dhcp6_shared_network ADD COLUMN pd_allocator TEXT DEFAULT NULL;
 
+-- Change lease6:address to BYTEA.  Note the convert_to() function is a hack
+-- to get postgres to accept the alteration.  This of course would not work
+-- on a populated table.
+ALTER TABLE lease6 ALTER COLUMN address TYPE BYTEA USING convert_to(address, 'UTF8');
+
 -- Update the schema version number.
 UPDATE schema_version
     SET version = '16', minor = '0';
