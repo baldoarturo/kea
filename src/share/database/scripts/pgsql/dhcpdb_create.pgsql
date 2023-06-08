@@ -5683,6 +5683,10 @@ ALTER TABLE dhcp6_subnet ADD COLUMN pd_allocator TEXT DEFAULT NULL;
 ALTER TABLE dhcp6_shared_network ADD COLUMN allocator TEXT DEFAULT NULL;
 ALTER TABLE dhcp6_shared_network ADD COLUMN pd_allocator TEXT DEFAULT NULL;
 
+-- Change lease6:address to BYTEA.  Note the USING expression is required
+-- even though the table is empty.
+ALTER TABLE lease6 ALTER COLUMN address TYPE INET USING address::INET;
+
 -- Update the schema version number.
 UPDATE schema_version
     SET version = '16', minor = '0';

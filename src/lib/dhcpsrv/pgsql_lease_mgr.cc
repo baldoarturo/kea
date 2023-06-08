@@ -54,8 +54,13 @@ PgSqlTaggedStatement tagged_statements[] = {
 
     // DELETE_LEASE6
     { 2, { OID_VARCHAR, OID_TIMESTAMP },
+#ifdef ORG_CODE
       "delete_lease6",
       "DELETE FROM lease6 WHERE address = $1 AND expire = $2"},
+#else
+      "delete_lease6",
+      "DELETE FROM lease6 WHERE address = cast($1 as inet) AND expire = $2"},
+#endif
 
     // DELETE_LEASE6_STATE_EXPIRED
     { 2, { OID_INT8, OID_TIMESTAMP },
@@ -290,6 +295,7 @@ PgSqlTaggedStatement tagged_statements[] = {
 
     // GET_LEASE6_ADDR
     { 2, { OID_VARCHAR, OID_INT2 },
+#ifdef ORG_CODE
       "get_lease6_addr",
       "SELECT address, duid, valid_lifetime, "
         "extract(epoch from expire)::bigint, subnet_id, pref_lifetime, "
@@ -298,6 +304,16 @@ PgSqlTaggedStatement tagged_statements[] = {
         "state, user_context "
       "FROM lease6 "
       "WHERE address = $1 AND lease_type = $2"},
+#else
+      "get_lease6_addr",
+      "SELECT host(address), duid, valid_lifetime, "
+        "extract(epoch from expire)::bigint, subnet_id, pref_lifetime, "
+        "lease_type, iaid, prefix_len, fqdn_fwd, fqdn_rev, hostname, "
+        "hwaddr, hwtype, hwaddr_source, "
+        "state, user_context "
+      "FROM lease6 "
+      "WHERE address = cast($1 as inet) AND lease_type = $2"},
+#endif
 
     // GET_LEASE6_DUID_IAID
     { 3, { OID_BYTEA, OID_INT8, OID_INT2 },
@@ -324,6 +340,7 @@ PgSqlTaggedStatement tagged_statements[] = {
 
     // GET_LEASE6_PAGE
     { 2, { OID_VARCHAR, OID_INT8 },
+#ifdef ORG_CODE
       "get_lease6_page",
       "SELECT address, duid, valid_lifetime, "
         "extract(epoch from expire)::bigint, subnet_id, pref_lifetime, "
@@ -334,11 +351,27 @@ PgSqlTaggedStatement tagged_statements[] = {
       "WHERE address > $1 "
       "ORDER BY address "
       "LIMIT $2"},
+#else
+      "get_lease6_page",
+      "SELECT host(address), duid, valid_lifetime, "
+        "extract(epoch from expire)::bigint, subnet_id, pref_lifetime, "
+        "lease_type, iaid, prefix_len, fqdn_fwd, fqdn_rev, hostname, "
+        "hwaddr, hwtype, hwaddr_source, "
+        "state, user_context "
+      "FROM lease6 "
+      "WHERE address > cast($1 as inet) "
+      "ORDER BY address "
+      "LIMIT $2"},
+#endif
 
     // GET_LEASE6_SUBID
     { 1, { OID_INT8 },
       "get_lease6_subid",
+#ifdef ORG_CODE
       "SELECT address, duid, valid_lifetime, "
+#else
+      "SELECT host(address), duid, valid_lifetime, "
+#endif
         "extract(epoch from expire)::bigint, subnet_id, pref_lifetime, "
         "lease_type, iaid, prefix_len, fqdn_fwd, fqdn_rev, hostname, "
         "hwaddr, hwtype, hwaddr_source, "
@@ -349,7 +382,11 @@ PgSqlTaggedStatement tagged_statements[] = {
     // GET_LEASE6_DUID
     { 1, { OID_BYTEA },
       "get_lease6_duid",
+#ifdef ORG_CODE
       "SELECT address, duid, valid_lifetime, "
+#else
+      "SELECT host(address), duid, valid_lifetime, "
+#endif
         "extract(epoch from expire)::bigint, subnet_id, pref_lifetime, "
         "lease_type, iaid, prefix_len, fqdn_fwd, fqdn_rev, hostname, "
         "hwaddr, hwtype, hwaddr_source, "
@@ -360,7 +397,11 @@ PgSqlTaggedStatement tagged_statements[] = {
     // GET_LEASE6_HOSTNAME
     { 1, { OID_VARCHAR },
       "get_lease6_hostname",
+#ifdef ORG_CODE
       "SELECT address, duid, valid_lifetime, "
+#else
+      "SELECT host(address), duid, valid_lifetime, "
+#endif
         "extract(epoch from expire)::bigint, subnet_id, pref_lifetime, "
         "lease_type, iaid, prefix_len, fqdn_fwd, fqdn_rev, hostname, "
         "hwaddr, hwtype, hwaddr_source, "
@@ -371,7 +412,11 @@ PgSqlTaggedStatement tagged_statements[] = {
     // GET_LEASE6_EXPIRE
     { 3, { OID_INT8, OID_TIMESTAMP, OID_INT8 },
       "get_lease6_expire",
+#ifdef ORG_CODE
       "SELECT address, duid, valid_lifetime, "
+#else
+      "SELECT host(address), duid, valid_lifetime, "
+#endif
         "extract(epoch from expire)::bigint, subnet_id, pref_lifetime, "
         "lease_type, iaid, prefix_len, "
         "fqdn_fwd, fqdn_rev, hostname, "
@@ -402,7 +447,11 @@ PgSqlTaggedStatement tagged_statements[] = {
         "lease_type, iaid, prefix_len, fqdn_fwd, fqdn_rev, hostname, "
         "hwaddr, hwtype, hwaddr_source, "
         "state, user_context) "
+#ifdef ORG_CODE
       "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)"},
+#else
+      "VALUES (cast($1 as inet), $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)"},
+#endif
 
     // UPDATE_LEASE4
     { 15, { OID_INT8, OID_BYTEA, OID_BYTEA, OID_INT8, OID_TIMESTAMP, OID_INT8,
@@ -421,6 +470,7 @@ PgSqlTaggedStatement tagged_statements[] = {
             OID_BYTEA, OID_INT2, OID_INT2,
             OID_INT8, OID_TEXT, OID_VARCHAR, OID_TIMESTAMP },
       "update_lease6",
+#ifdef ORG_CODE
       "UPDATE lease6 SET address = $1, duid = $2, "
         "valid_lifetime = $3, expire = $4, subnet_id = $5, "
         "pref_lifetime = $6, lease_type = $7, iaid = $8, "
@@ -428,6 +478,15 @@ PgSqlTaggedStatement tagged_statements[] = {
         "hwaddr = $13, hwtype = $14, hwaddr_source = $15, "
         "state = $16, user_context = $17 "
       "WHERE address = $18 AND expire = $19"},
+#else
+      "UPDATE lease6 SET address = cast($1 as inet), duid = $2, "
+        "valid_lifetime = $3, expire = $4, subnet_id = $5, "
+        "pref_lifetime = $6, lease_type = $7, iaid = $8, "
+        "prefix_len = $9, fqdn_fwd = $10, fqdn_rev = $11, hostname = $12, "
+        "hwaddr = $13, hwtype = $14, hwaddr_source = $15, "
+        "state = $16, user_context = $17 "
+      "WHERE address = cast($18 as inet) AND expire = $19"},
+#endif
 
     // ALL_LEASE4_STATS
     { 0, { OID_NONE },
@@ -875,7 +934,8 @@ public:
           iaid_str_(""), lease_type_(Lease6::TYPE_NA), lease_type_str_(""),
           prefix_len_(0), prefix_len_str_(""), pref_lifetime_(0),
           preferred_lifetime_str_(""), hwtype_(0), hwtype_str_(""),
-          hwaddr_source_(0), hwaddr_source_str_("") {
+          hwaddr_source_(0), hwaddr_source_str_(""),
+          address_length_(0), address_(0) {
 
         BOOST_STATIC_ASSERT(15 < LEASE_COLUMNS);
 
@@ -1038,7 +1098,6 @@ public:
             /// retrieved values should be checked for being NULL to
             /// prevent cryptic errors during conversions from NULL
             /// to actual values.
-
             IOAddress addr(getIPv6Value(r, row, ADDRESS_COL));
 
             convertFromBytea(r, row, DUID_COL, duid_buffer_, sizeof(duid_buffer_), duid_length_);
@@ -1179,6 +1238,9 @@ private:
     std::string          hwtype_str_;
     uint32_t             hwaddr_source_;
     std::string          hwaddr_source_str_;
+    size_t               address_length_;
+    std::vector<uint8_t> address_;
+    uint8_t              address_buffer_[16];
     //@}
 };
 
@@ -2207,6 +2269,7 @@ PgSqlLeaseMgr::getLeases6(const IOAddress& lower_bound_address,
     // Prepare WHERE clause
     PsqlBindArray bind_array;
 
+#ifdef ORG_CODE
     // In IPv6 we compare addresses represented as strings. The IPv6 zero address
     // is ::, so it is greater than any other address. In this special case, we
     // just use 0 for comparison which should be lower than any real IPv6 address.
@@ -2217,6 +2280,11 @@ PgSqlLeaseMgr::getLeases6(const IOAddress& lower_bound_address,
 
     // Bind lower bound address
     bind_array.add(lb_address_data);
+#else
+    // inet column compares treat :: correctly
+    std::string lb_address_data = lower_bound_address.toText();
+    bind_array.add(lb_address_data);
+#endif
 
     // Bind page size value
     std::string page_size_data = boost::lexical_cast<std::string>(page_size.page_size_);
