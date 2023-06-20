@@ -3998,14 +3998,12 @@ TEST_F(HooksDhcpv6SrvTest, lease6RenewSimple) {
     // Note that preferred, valid, T1 and T2 timers and CLTT are set to invalid
     // value on purpose. They should be updated during RENEW.
     Lease6Ptr lease(new Lease6(Lease::TYPE_NA, addr, duid_, iaid,
-                               501, 502, subnet_->getID(),
-                               HWAddrPtr(), 0));
+                               501, 502, subnet_->getID(), HWAddrPtr()));
     lease->cltt_ = 1234;
     ASSERT_TRUE(LeaseMgrFactory::instance().addLease(lease));
 
     // Check that the lease is really in the database
-    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA,
-                                                        addr);
+    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA, addr);
     ASSERT_TRUE(l);
 
     // Check that preferred, valid and cltt really set and not using
@@ -4102,14 +4100,12 @@ TEST_F(HooksDhcpv6SrvTest, lease6RenewLeaseUpdate) {
     // Note that preferred, valid, T1 and T2 timers and CLTT are set to invalid
     // value on purpose. They should be updated during RENEW.
     Lease6Ptr lease(new Lease6(Lease::TYPE_NA, addr, duid_, iaid,
-                               501, 502, subnet_->getID(),
-                               HWAddrPtr(), 0));
+                               501, 502, subnet_->getID(), HWAddrPtr()));
     lease->cltt_ = 1234;
     ASSERT_TRUE(LeaseMgrFactory::instance().addLease(lease));
 
     // Check that the lease is really in the database
-    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA,
-                                                        addr);
+    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA, addr);
     ASSERT_TRUE(l);
 
     // Check that preferred, valid and cltt really set and not using
@@ -4206,14 +4202,12 @@ TEST_F(HooksDhcpv6SrvTest, lease6RenewSkip) {
     // Note that preferred, valid, T1 and T2 timers and CLTT are set to invalid
     // value on purpose. They should be updated during RENEW.
     Lease6Ptr lease(new Lease6(Lease::TYPE_NA, addr, duid_, iaid,
-                               501, 502, subnet_->getID(),
-                               HWAddrPtr(), 0));
+                               501, 502, subnet_->getID(), HWAddrPtr()));
     lease->cltt_ = 1234;
     ASSERT_TRUE(LeaseMgrFactory::instance().addLease(lease));
 
     // Check that the lease is really in the database
-    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA,
-                                                        addr);
+    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA, addr);
     ASSERT_TRUE(l);
 
     // Check that preferred, valid and cltt are really set and not using
@@ -4277,14 +4271,12 @@ TEST_F(HooksDhcpv6SrvTest, lease6RebindSimple) {
     // Note that preferred, valid, T1 and T2 timers and CLTT are set to invalid
     // value on purpose. They should be updated during REBIND.
     Lease6Ptr lease(new Lease6(Lease::TYPE_NA, addr, duid_, iaid,
-                               501, 502, subnet_->getID(),
-                               HWAddrPtr(), 0));
+                               501, 502, subnet_->getID(), HWAddrPtr()));
     lease->cltt_ = 1234;
     ASSERT_TRUE(LeaseMgrFactory::instance().addLease(lease));
 
     // Check that the lease is really in the database
-    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA,
-                                                        addr);
+    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA, addr);
     ASSERT_TRUE(l);
 
     // Check that preferred, valid and cltt really set and not using
@@ -4376,14 +4368,12 @@ TEST_F(HooksDhcpv6SrvTest, lease6RebindLeaseUpdate) {
     // Note that preferred, valid, T1 and T2 timers and CLTT are set to invalid
     // value on purpose. They should be updated during REBIND.
     Lease6Ptr lease(new Lease6(Lease::TYPE_NA, addr, duid_, iaid,
-                               501, 502, subnet_->getID(),
-                               HWAddrPtr(), 0));
+                               501, 502, subnet_->getID(), HWAddrPtr()));
     lease->cltt_ = 1234;
     ASSERT_TRUE(LeaseMgrFactory::instance().addLease(lease));
 
     // Check that the lease is really in the database
-    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA,
-                                                        addr);
+    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA, addr);
     ASSERT_TRUE(l);
 
     // Check that T1, T2, preferred, valid and cltt really set and not using
@@ -4478,14 +4468,12 @@ TEST_F(HooksDhcpv6SrvTest, lease6RebindSkip) {
     // Note that preferred, valid, T1 and T2 timers and CLTT are set to invalid
     // value on purpose. They should be updated during REBIND.
     Lease6Ptr lease(new Lease6(Lease::TYPE_NA, addr, duid_, iaid,
-                               501, 502, subnet_->getID(),
-                               HWAddrPtr(), 0));
+                               501, 502, subnet_->getID(), HWAddrPtr()));
     lease->cltt_ = 1234;
     ASSERT_TRUE(LeaseMgrFactory::instance().addLease(lease));
 
     // Check that the lease is really in the database
-    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA,
-                                                        addr);
+    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA, addr);
     ASSERT_TRUE(l);
 
     // Check that preferred, valid and cltt really set and not using
@@ -4555,14 +4543,12 @@ TEST_F(HooksDhcpv6SrvTest, lease6ReleaseSimple) {
     // Note that preferred, valid, T1 and T2 timers and CLTT are set to invalid
     // value on purpose. They should be updated during RENEW.
     Lease6Ptr lease(new Lease6(Lease::TYPE_NA, addr, duid_, iaid,
-                               501, 502, subnet_->getID(),
-                               HWAddrPtr(), 0));
+                               501, 502, subnet_->getID(), HWAddrPtr()));
     lease->cltt_ = 1234;
     ASSERT_TRUE(LeaseMgrFactory::instance().addLease(lease));
 
     // Check that the lease is really in the database
-    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA,
-                                                        addr);
+    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA, addr);
     ASSERT_TRUE(l);
 
     // Let's create a RELEASE
@@ -4644,16 +4630,14 @@ TEST_F(HooksDhcpv6SrvTest, lease6ReleaseSimpleInfiniteLease) {
     // Note that preferred, valid, T1 and T2 timers and CLTT are set to invalid
     // value on purpose. They should be updated during RENEW.
     Lease6Ptr lease(new Lease6(Lease::TYPE_NA, addr, duid_, iaid,
-                               501, 502, subnet_->getID(),
-                               HWAddrPtr(), 0));
+                               501, 502, subnet_->getID(), HWAddrPtr()));
     lease->cltt_ = 1234;
     lease->valid_lft_ = Lease::INFINITY_LFT;
     lease->current_valid_lft_ = Lease::INFINITY_LFT;
     ASSERT_TRUE(LeaseMgrFactory::instance().addLease(lease));
 
     // Check that the lease is really in the database
-    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA,
-                                                        addr);
+    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA, addr);
     ASSERT_TRUE(l);
 
     // Let's create a RELEASE
@@ -4734,14 +4718,12 @@ TEST_F(HooksDhcpv6SrvTest, lease6ReleaseSimpleNoDelete) {
     // Note that preferred, valid, T1 and T2 timers and CLTT are set to invalid
     // value on purpose. They should be updated during RENEW.
     Lease6Ptr lease(new Lease6(Lease::TYPE_NA, addr, duid_, iaid,
-                               501, 502, subnet_->getID(),
-                               HWAddrPtr(), 0));
+                               501, 502, subnet_->getID(), HWAddrPtr()));
     lease->cltt_ = 1234;
     ASSERT_TRUE(LeaseMgrFactory::instance().addLease(lease));
 
     // Check that the lease is really in the database
-    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA,
-                                                        addr);
+    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA, addr);
     ASSERT_TRUE(l);
 
     // Let's create a RELEASE
@@ -4823,14 +4805,12 @@ TEST_F(HooksDhcpv6SrvTest, lease6ReleasePrefixSimple) {
     // Note that preferred, valid, T1 and T2 timers and CLTT are set to invalid
     // value on purpose. They should be updated during RENEW.
     Lease6Ptr lease(new Lease6(Lease::TYPE_PD, prefix, duid_, iaid,
-                               501, 502, subnet_->getID(),
-                               HWAddrPtr(), 80));
+                               501, 502, subnet_->getID(), HWAddrPtr(), 80));
     lease->cltt_ = 1234;
     ASSERT_TRUE(LeaseMgrFactory::instance().addLease(lease));
 
     // Check that the lease is really in the database
-    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_PD,
-                                                        prefix);
+    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_PD, prefix);
     ASSERT_TRUE(l);
 
     // Let's create a RELEASE
@@ -4906,16 +4886,14 @@ TEST_F(HooksDhcpv6SrvTest, lease6ReleasePrefixSimpleInfiniteLease) {
     // Note that preferred, valid, T1 and T2 timers and CLTT are set to invalid
     // value on purpose. They should be updated during RENEW.
     Lease6Ptr lease(new Lease6(Lease::TYPE_PD, prefix, duid_, iaid,
-                               501, 502, subnet_->getID(),
-                               HWAddrPtr(), 80));
+                               501, 502, subnet_->getID(), HWAddrPtr(), 80));
     lease->cltt_ = 1234;
     lease->valid_lft_ = Lease::INFINITY_LFT;
     lease->current_valid_lft_ = Lease::INFINITY_LFT;
     ASSERT_TRUE(LeaseMgrFactory::instance().addLease(lease));
 
     // Check that the lease is really in the database
-    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_PD,
-                                                        prefix);
+    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_PD, prefix);
     ASSERT_TRUE(l);
 
     // Let's create a RELEASE
@@ -4990,14 +4968,12 @@ TEST_F(HooksDhcpv6SrvTest, lease6ReleasePrefixSimpleNoDelete) {
     // Note that preferred, valid, T1 and T2 timers and CLTT are set to invalid
     // value on purpose. They should be updated during RENEW.
     Lease6Ptr lease(new Lease6(Lease::TYPE_PD, prefix, duid_, iaid,
-                               501, 502, subnet_->getID(),
-                               HWAddrPtr(), 80));
+                               501, 502, subnet_->getID(), HWAddrPtr(), 80));
     lease->cltt_ = 1234;
     ASSERT_TRUE(LeaseMgrFactory::instance().addLease(lease));
 
     // Check that the lease is really in the database
-    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_PD,
-                                                        prefix);
+    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_PD, prefix);
     ASSERT_TRUE(l);
 
     // Let's create a RELEASE
@@ -5078,14 +5054,12 @@ TEST_F(HooksDhcpv6SrvTest, lease6ReleaseSkip) {
     // Note that preferred, valid, T1 and T2 timers and CLTT are set to invalid
     // value on purpose. They should be updated during RENEW.
     Lease6Ptr lease(new Lease6(Lease::TYPE_NA, addr, duid_, iaid,
-                               501, 502, subnet_->getID(),
-                               HWAddrPtr(), 0));
+                               501, 502, subnet_->getID(), HWAddrPtr()));
     lease->cltt_ = 1234;
     ASSERT_TRUE(LeaseMgrFactory::instance().addLease(lease));
 
     // Check that the lease is really in the database
-    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA,
-                                                        addr);
+    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA, addr);
     ASSERT_TRUE(l);
 
     // Let's create a RELEASE
@@ -5111,8 +5085,7 @@ TEST_F(HooksDhcpv6SrvTest, lease6ReleaseSkip) {
 
     // Check that the lease is still there
     // get lease by address
-    l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA,
-                                              addr);
+    l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA, addr);
     ASSERT_TRUE(l);
 
     // Get lease by subnetid/duid/iaid combination
@@ -5145,14 +5118,12 @@ TEST_F(HooksDhcpv6SrvTest, lease6ReleaseDrop) {
     // Note that preferred, valid, T1 and T2 timers and CLTT are set to invalid
     // value on purpose. They should be updated during RENEW.
     Lease6Ptr lease(new Lease6(Lease::TYPE_NA, addr, duid_, iaid,
-                               501, 502, subnet_->getID(),
-                               HWAddrPtr(), 0));
+                               501, 502, subnet_->getID(), HWAddrPtr()));
     lease->cltt_ = 1234;
     ASSERT_TRUE(LeaseMgrFactory::instance().addLease(lease));
 
     // Check that the lease is really in the database
-    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA,
-                                                        addr);
+    Lease6Ptr l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA, addr);
     ASSERT_TRUE(l);
 
     // Let's create a RELEASE
@@ -5178,8 +5149,7 @@ TEST_F(HooksDhcpv6SrvTest, lease6ReleaseDrop) {
 
     // Check that the lease is still there
     // get lease by address
-    l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA,
-                                              addr);
+    l = LeaseMgrFactory::instance().getLease6(Lease::TYPE_NA, addr);
     ASSERT_TRUE(l);
 
     // Get lease by subnetid/duid/iaid combination
