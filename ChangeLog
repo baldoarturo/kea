@@ -1,3 +1,9 @@
+2156.	[func]		piotrek
+	A new command named "reservation-get-by-address" is now available
+	in the host_cmds hook library. It returns all host reservations
+	for given IP address either in all subnets or in a given subnet.
+	(Gitlab #2795)
+
 2155.	[func]		fdupont, tomek
 	Added the config-hash-get command which returns the
 	SHA-256 hash of the current configuration, helping
